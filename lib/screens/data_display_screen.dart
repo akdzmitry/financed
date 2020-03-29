@@ -1,3 +1,5 @@
+//import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:financed/services/networking.dart';
 
@@ -10,6 +12,9 @@ class DataDisplayScreen extends StatefulWidget {
 }
 
 class _DataDisplayScreenState extends State<DataDisplayScreen> {
+  String companyName = '';
+  String stockSymbol = '';
+  String dateDCF = '';
   double stockPrice = 0;
   double stockDCF = 0;
 
@@ -39,22 +44,27 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
     setState(() {
       //update UI stock basic data
       if (basicStockData == null) {
-        stockPrice = 1;
+        stockPrice = 0;
+        stockSymbol = basicStockData[0][''];
+        companyName = basicStockData[0][''];
         return;
       }
       try {
         stockPrice = basicStockData[0]['price'];
+        stockSymbol = basicStockData[0]['symbol'];
+        companyName = basicStockData[0]['name'];
       } catch (e) {
         print(e);
       }
       //update UI stock DCF value
       if (stockDCFData == null) {
-        stockDCF = 1;
+        stockDCF = 0;
         return;
       }
       try {
-        stockDCF = stockDCFData['dcf'];
-        stockDCF = double.parse(stockDCF.toStringAsFixed(2));
+        //stockDCF = stockDCFData['dcf'];
+        stockDCF = double.parse(stockDCFData['dcf'].toStringAsFixed(2));
+        dateDCF = stockDCFData['date'];
       } catch (e) {
         print(e);
       }
@@ -65,13 +75,53 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Data Display Screen'),
+        title: Text('Search Screen'),
       ),
-      body: Center(
-        child: Text(
-          'Stock price: $stockPrice',
+      body: Container(
+        constraints: BoxConstraints.expand(),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Text('Company: $companyName'),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Text('Symbol: $stockSymbol'),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Text('Price: \$$stockPrice'),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Text('Instrinsic Value (DCF): \$$stockDCF'),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Text('Date: $dateDCF'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+//      body: Center(
+//        child: Text(
+//          'Stock price: $stockPrice',
+//        ),
+//      ),
