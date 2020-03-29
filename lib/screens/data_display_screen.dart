@@ -1,32 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:financed/services/networking.dart';
 
 class DataDisplayScreen extends StatefulWidget {
-  DataDisplayScreen({this.stockData});
-  final stockData;
+  DataDisplayScreen({this.txtFldEntry});
+  final txtFldEntry;
 
   @override
   _DataDisplayScreenState createState() => _DataDisplayScreenState();
 }
 
 class _DataDisplayScreenState extends State<DataDisplayScreen> {
-  double price = 0;
+  double stockPrice = 0;
+  double stockDCF = 0;
 
   @override
   void initState() {
     super.initState();
-    updateUI(widget.stockData);
+    updateBasicDataUI(widget.txtFldEntry);
   }
 
-  void updateUI(dynamic stockData) {
-    if (stockData == null) {
-      price = 64;
-      return;
-    }
-    try {
-      price = stockData[0]['price'];
-    } catch (e) {
-      print(e);
-    }
+  dynamic getBasicData(String txtFldEntry) async {
+    NetworkHelper networkHelper = NetworkHelper(
+        'https://financialmodelingprep.com/api/v3/quote/$txtFldEntry');
+    var stockBasicData = await networkHelper.getData();
+    return stockBasicData;
+  }
+
+  dynamic getDCF(String txtFldEntry) async {
+    NetworkHelper networkHelper = NetworkHelper(
+        'https://financialmodelingprep.com/api/v3/company/discounted-cash-flow/$txtFldEntry');
+    var stockDCF = await networkHelper.getData();
+    return stockDCF;
+  }
+
+  void updateBasicDataUI(dynamic txtFldEntry) async {
+    var basicStockData = await getBasicData(txtFldEntry);
+    var stockDCFData = await getDCF(txtFldEntry);
+    setState(() {
+      //update UI stock basic data
+      if (basicStockData == null) {
+        stockPrice = 1;
+        return;
+      }
+      try {
+        stockPrice = basicStockData[0]['price'];
+      } catch (e) {
+        print(e);
+      }
+      //update UI stock DCF value
+      if (stockDCFData == null) {
+        stockDCF = 1;
+        return;
+      }
+      try {
+        stockDCF = stockDCFData['dcf'];
+        stockDCF = double.parse(stockDCF.toStringAsFixed(2));
+      } catch (e) {
+        print(e);
+      }
+    });
   }
 
   @override
@@ -37,7 +69,7 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
       ),
       body: Center(
         child: Text(
-          'Stock price: $price',
+          'Stock price: $stockPrice',
         ),
       ),
     );

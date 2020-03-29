@@ -1,5 +1,4 @@
 import 'package:financed/screens/data_display_screen.dart';
-import 'package:financed/services/networking.dart';
 import 'package:flutter/material.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -10,16 +9,12 @@ class SearchScreen extends StatefulWidget {
 String txtFldEntry = 'AAPL';
 
 class _SearchScreenState extends State<SearchScreen> {
-  void getStockData(String ticker) async {
-    NetworkHelper networkHelper = NetworkHelper(
-      'https://financialmodelingprep.com/api/v3/quote/$ticker',
-    );
-    var stockData = await networkHelper.getData();
+  void getStockData(String txtFldEntry) async {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DataDisplayScreen(
-          stockData: stockData,
+          txtFldEntry: txtFldEntry,
         ),
       ),
     );
