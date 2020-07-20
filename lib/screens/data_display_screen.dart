@@ -1,7 +1,7 @@
 //import 'dart:html';
 
-import 'package:flutter/material.dart';
 import 'package:financed/services/networking.dart';
+import 'package:flutter/material.dart';
 
 class DataDisplayScreen extends StatefulWidget {
   DataDisplayScreen({this.txtFldEntry});
@@ -26,14 +26,16 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
 
   dynamic getBasicData(String txtFldEntry) async {
     NetworkHelper networkHelper = NetworkHelper(
-        'https://financialmodelingprep.com/api/v3/quote/$txtFldEntry');
+        'https://financialmodelingprep.com/api/v3/quote/$txtFldEntry?apikey=44c971742158fbcb01a37a0e62b9b753');
+    //'https://financialmodelingprep.com/api/v3/quote/$txtFldEntry');
     var stockBasicData = await networkHelper.getData();
     return stockBasicData;
   }
 
   dynamic getDCF(String txtFldEntry) async {
     NetworkHelper networkHelper = NetworkHelper(
-        'https://financialmodelingprep.com/api/v3/company/discounted-cash-flow/$txtFldEntry');
+        'https://financialmodelingprep.com/api/v3/company/discounted-cash-flow/$txtFldEntry?apikey=44c971742158fbcb01a37a0e62b9b753');
+    //'https://financialmodelingprep.com/api/v3/company/discounted-cash-flow/$txtFldEntry');
     var stockDCF = await networkHelper.getData();
     return stockDCF;
   }
