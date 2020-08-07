@@ -16,7 +16,7 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
   String stockSymbol = '';
   String dateDCF = '';
   double stockPrice = 0;
-  double stockDCF = 0;
+  int stockDCF = 0;
 
   @override
   void initState() {
@@ -24,18 +24,23 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
     updateBasicDataUI(widget.txtFldEntry);
   }
 
+  dynamic getQuote(String txtFldEntry) async {
+    NetworkHelper networkHelper = NetworkHelper(
+        'https://finnhub.io/api/v1/quote?symbol=$txtFldEntry&token=bsmctrvrh5r9p5dk3k0g');
+    var stockQuote = await networkHelper.getData();
+    return stockQuote;
+  }
+
   dynamic getBasicData(String txtFldEntry) async {
     NetworkHelper networkHelper = NetworkHelper(
-        'https://financialmodelingprep.com/api/v3/quote/$txtFldEntry?apikey=44c971742158fbcb01a37a0e62b9b753');
-    //'https://financialmodelingprep.com/api/v3/quote/$txtFldEntry');
+        'https://finnhub.io/api/v1/stock/profile2?symbol=$txtFldEntry&token=bsmctrvrh5r9p5dk3k0g');
     var stockBasicData = await networkHelper.getData();
     return stockBasicData;
   }
 
   dynamic getDCF(String txtFldEntry) async {
     NetworkHelper networkHelper = NetworkHelper(
-        'https://financialmodelingprep.com/api/v3/company/discounted-cash-flow/$txtFldEntry?apikey=44c971742158fbcb01a37a0e62b9b753');
-    //'https://financialmodelingprep.com/api/v3/company/discounted-cash-flow/$txtFldEntry');
+        'https://finnhub.io/api/v1/stock/price-target?symbol=$txtFldEntry&token=bsmctrvrh5r9p5dk3k0g');
     var stockDCF = await networkHelper.getData();
     return stockDCF;
   }
@@ -43,18 +48,27 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
   void updateBasicDataUI(dynamic txtFldEntry) async {
     var basicStockData = await getBasicData(txtFldEntry);
     var stockDCFData = await getDCF(txtFldEntry);
+    var stockQuoteData = await getQuote(txtFldEntry);
     setState(() {
       //update UI stock basic data
       if (basicStockData == null) {
-        stockPrice = 0;
-        stockSymbol = basicStockData[0][''];
-        companyName = basicStockData[0][''];
+        stockSymbol = 'error';
+        companyName = 'error';
         return;
       }
       try {
-        stockPrice = basicStockData[0]['price'];
-        stockSymbol = basicStockData[0]['symbol'];
-        companyName = basicStockData[0]['name'];
+        stockSymbol = basicStockData['ticker'];
+        companyName = basicStockData['name'];
+      } catch (e) {
+        print(e);
+      }
+      //update UI stock current 'c' price data
+      if (stockQuoteData == null) {
+        stockPrice = 0;
+        return;
+      }
+      try {
+        stockPrice = stockQuoteData['c'];
       } catch (e) {
         print(e);
       }
@@ -64,9 +78,12 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
         return;
       }
       try {
-        //stockDCF = stockDCFData['dcf'];
-        stockDCF = double.parse(stockDCFData['dcf'].toStringAsFixed(2));
-        dateDCF = stockDCFData['date'];
+        stockDCF = stockDCFData['targetMedian'];
+
+        //stockDCF = double.parse(stockDCFData['dcf'].toStringAsFixed(2));
+        dateDCF = stockDCFData['lastUpdated'];
+
+        dateDCF = dateDCF.split(" ")[0];
       } catch (e) {
         print(e);
       }
@@ -106,13 +123,13 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
               Expanded(
                 flex: 1,
                 child: Center(
-                  child: Text('Instrinsic Value (DCF): \$$stockDCF'),
+                  child: Text('Median Target Price: \$$stockDCF'),
                 ),
               ),
               Expanded(
                 flex: 1,
                 child: Center(
-                  child: Text('Date: $dateDCF'),
+                  child: Text('Target Price Updated: $dateDCF'),
                 ),
               ),
             ],
