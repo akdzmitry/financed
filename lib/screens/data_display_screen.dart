@@ -15,8 +15,8 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
   String companyName = '';
   String stockSymbol = '';
   String dateDCF = '';
-  double stockPrice = 0;
-  int stockDCF = 0;
+  var stockPrice;
+  var stockDCF;
 
   @override
   void initState() {
@@ -79,10 +79,7 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
       }
       try {
         stockDCF = stockDCFData['targetMedian'];
-
-        //stockDCF = double.parse(stockDCFData['dcf'].toStringAsFixed(2));
         dateDCF = stockDCFData['lastUpdated'];
-
         dateDCF = dateDCF.split(" ")[0];
       } catch (e) {
         print(e);
@@ -139,8 +136,3 @@ class _DataDisplayScreenState extends State<DataDisplayScreen> {
     );
   }
 }
-//      body: Center(
-//        child: Text(
-//          'Stock price: $stockPrice',
-//        ),
-//      ),
